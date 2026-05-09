@@ -1,1 +1,549 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聞いて、考えを深めよう - デジタルワークシート</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            body { background: white; }
+            header, button, .no-print { display: none !important; }
+            #print-area { box-shadow: none !important; border: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-20">
+
+    <div id="error-toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-rose-600 text-white px-6 py-3 rounded-full shadow-lg z-50 font-bold opacity-0 pointer-events-none transition-opacity duration-300">
+        エラーメッセージ
+    </div>
+
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-10">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-lg font-bold">国語科「聞いて、考えを深めよう」</h1>
+            <div class="text-sm bg-indigo-800 px-3 py-1 rounded-full font-bold" id="progress-indicator">Start</div>
+        </div>
+        <div class="w-full bg-indigo-200 h-1.5">
+            <div id="progress-bar" class="bg-yellow-400 h-1.5 transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 mt-6">
+
+        <!-- Step 0: スタート -->
+        <div id="step-0" class="step-content active fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4 border-b-2 border-indigo-100 pb-2">単元のめあて</h2>
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-lg font-medium text-slate-700">
+                インタビューを通して、話し手の考えと自分の考えを比べ、自分の考えを深めよう。
+            </div>
+            <ul class="list-disc list-inside text-slate-600 space-y-2 mb-8">
+                <li>話し手の<strong>思いや工夫</strong>を引き出す質問を考える。</li>
+                <li>相手の話から<strong>「事実」と「感想・意見」</strong>を区別して聞き取る。</li>
+                <li>聞く前と後で、<strong>自分の考えがどう変わったか・深まったか</strong>をまとめる。</li>
+                <li>敬語を使って礼儀正しくインタビューする。</li>
+            </ul>
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6 text-sm text-slate-600">
+                💡 <strong>自動保存機能付き:</strong> 途中でブラウザを閉じても、続きから再開できます。
+            </div>
+            <button onclick="nextStep(1)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">
+                学習を始める
+            </button>
+        </div>
+
+        <!-- Step 1: インタビュー相手と話題の決定 -->
+        <div id="step-1" class="step-content fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <span class="text-indigo-600 font-bold text-sm tracking-wider uppercase">Quest 1</span>
+            <h2 class="text-xl font-bold mb-4 mt-1">インタビューの相手と話題を決めよう</h2>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p class="text-sm font-bold text-blue-900 mb-2">💡 インタビュー相手の例</p>
+                <ul class="text-sm text-blue-800 space-y-1 ml-4 list-disc">
+                    <li>校長先生・教頭先生</li>
+                    <li>地域のボランティアの方</li>
+                    <li>PTAの方・保護者</li>
+                    <li>学校で働く人（給食調理員、用務員、図書館司書など）</li>
+                    <li>クラスメイト（別の視点を持つ友達）</li>
+                </ul>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">インタビューする相手 <span class="text-rose-500">*</span></label>
+                    <input type="text" id="interview-target" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例：校長先生、〇〇さん">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">話題・聞きたいこと <span class="text-rose-500">*</span></label>
+                    <textarea id="interview-topic" rows="2" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例：学校のよいところ、この仕事を始めたきっかけ、大切にしていること"></textarea>
+                </div>
+            </div>
+
+            <button onclick="nextStep(2)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">
+                次へ（自分の考えをもつ）
+            </button>
+        </div>
+
+        <!-- Step 2: インタビュー前の自分の考え -->
+        <div id="step-2" class="step-content fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <span class="text-indigo-600 font-bold text-sm tracking-wider uppercase">Quest 2</span>
+            <h2 class="text-xl font-bold mb-2 mt-1">インタビュー前の自分の考えをまとめよう</h2>
+            <p class="text-slate-600 mb-6">話を聞く<strong>前</strong>に、この話題について<strong>あなた自身はどう考えているか</strong>を書いておきましょう。</p>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex gap-3">
+                <div class="text-2xl">💡</div>
+                <div class="text-sm text-blue-800">
+                    <strong>なぜ先に自分の考えを書くの?</strong><br>
+                    インタビュー後に「自分の考えがどう変わったか・深まったか」を比べるためです。<br>
+                    今の時点での自分の考えを、素直に書いておきましょう。
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">今のあなたの考え <span class="text-rose-500">*</span></label>
+                    <textarea id="my-opinion-before" rows="3" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例：私は学校の〇〇がよいところだと思います。なぜなら〜"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">そう考える理由（あなたの経験や事実） <span class="text-rose-500">*</span></label>
+                    <textarea id="my-reason-before" rows="3" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="・自分が〇〇の経験をしたとき、〜と感じた。&#10;・実際に〇〇という事実がある。"></textarea>
+                </div>
+            </div>
+            <button onclick="nextStep(3)" class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">
+                次へ（質問を考える）
+            </button>
+        </div>
+
+        <!-- Step 3: 質問の準備 -->
+        <div id="step-3" class="step-content fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <span class="text-indigo-600 font-bold text-sm tracking-wider uppercase">Quest 3</span>
+            <h2 class="text-xl font-bold mb-4 mt-1">インタビューの質問を準備しよう</h2>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 text-sm">
+                <strong>相手の思いや工夫を引き出す質問を考えましょう！</strong><br>
+                「はい・いいえ」で答えられる質問より、「なぜ?」「どんな?」と聞く質問の方が、相手の考えを深く聞けます。
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <p class="text-sm font-bold text-slate-500">質問の例（タップで追加）：</p>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="addQuestionText('なぜそう思われるのですか？')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-1 px-3 rounded-full border border-slate-300 transition">なぜそう思われるのですか？</button>
+                    <button onclick="addQuestionText('どんな経験から、そう考えられたのですか？')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-1 px-3 rounded-full border border-slate-300 transition">どんな経験から？</button>
+                    <button onclick="addQuestionText('そのとき、どんなお気持ちでしたか？')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-1 px-3 rounded-full border border-slate-300 transition">そのとき、どんなお気持ちでしたか？</button>
+                    <button onclick="addQuestionText('具体的には、どのような場面ですか？')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-1 px-3 rounded-full border border-slate-300 transition">具体的にはどのような場面ですか？</button>
+                    <button onclick="addQuestionText('工夫されていることはありますか？')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-1 px-3 rounded-full border border-slate-300 transition">工夫されていることは？</button>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-1">質問メモ <span class="text-rose-500">*</span></label>
+                <textarea id="my-questions" rows="4" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="・なぜ〜&#10;・どんな経験から〜&#10;・工夫していることは〜"></textarea>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <p class="text-sm font-bold text-green-900 mb-2">📝 インタビュー時の注意点</p>
+                <ul class="text-sm text-green-800 space-y-1 ml-4 list-disc">
+                    <li><strong>敬語</strong>を使って礼儀正しく話す</li>
+                    <li>相づち（「そうなんですね」「なるほど」）を打つ</li>
+                    <li>メモを取る（または録音の許可をもらう）</li>
+                    <li>相手の話をさえぎらず、最後まで聞く</li>
+                </ul>
+            </div>
+            
+            <button onclick="nextStep(4)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">
+                次へ（インタビュー記録）
+            </button>
+        </div>
+
+        <!-- Step 4: インタビュー記録 -->
+        <div id="step-4" class="step-content fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <span class="text-indigo-600 font-bold text-sm tracking-wider uppercase">Quest 4</span>
+            <h2 class="text-xl font-bold mb-4 mt-1">インタビューの記録を整理しよう</h2>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p class="text-sm font-bold text-blue-900 mb-2">💡 大切なポイント</p>
+                <p class="text-sm text-blue-800">
+                    相手の話を聞きながら、<strong>「事実」</strong>と<strong>「感想・意見」</strong>を区別してメモしましょう。<br>
+                    ・<strong>事実</strong>：実際にあったこと、客観的なこと<br>
+                    ・<strong>感想・意見</strong>：その人の考えや気持ち
+                </p>
+            </div>
+
+            <div class="space-y-6 mb-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">相手が話してくれた内容（メモ） <span class="text-rose-500">*</span></label>
+                    <textarea id="interview-memo" rows="6" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="インタビューで聞いた内容を自由にメモしましょう。&#10;録音した場合は、後で聞き返して詳しく書き足すこともできます。"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <label class="block text-sm font-bold text-yellow-900 mb-2">📌 事実（実際にあったこと）</label>
+                        <textarea id="fact-memo" rows="3" onchange="autoSave()" class="w-full p-2 border border-yellow-300 rounded outline-none bg-white" placeholder="例：10年前にこの学校に赴任した。毎朝校門で挨拶している。"></textarea>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                        <label class="block text-sm font-bold text-pink-900 mb-2">💭 感想・意見（考えや気持ち）</label>
+                        <textarea id="opinion-memo" rows="3" onchange="autoSave()" class="w-full p-2 border border-pink-300 rounded outline-none bg-white" placeholder="例：子どもたちの笑顔が何よりうれしい。挨拶は大切だと思う。"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">相手の「思い」や「工夫」で印象に残ったこと</label>
+                    <textarea id="impression-memo" rows="2" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例：〇〇を大切にしている理由が、自分の想像とは違っていた。"></textarea>
+                </div>
+            </div>
+            
+            <button onclick="nextStep(5)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">
+                次へ（考えの比較）
+            </button>
+        </div>
+
+        <!-- Step 5: 自分の考えとの比較 -->
+        <div id="step-5" class="step-content fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <span class="text-indigo-600 font-bold text-sm tracking-wider uppercase">Quest 5</span>
+            <h2 class="text-xl font-bold mb-4 mt-1">話し手の考えと自分の考えを比べよう</h2>
+            <p class="text-slate-600 mb-6">インタビュー前の自分の考えと、相手の考えを比較して、気づいたことを整理しましょう。</p>
+            
+            <div class="bg-slate-100 p-4 rounded-lg mb-6 text-sm">
+                <p class="font-bold text-slate-700 mb-2">📖 あなたの最初の考え（振り返り）</p>
+                <div id="review-before-opinion" class="bg-white p-3 rounded border border-slate-200 text-slate-600 whitespace-pre-wrap"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <label class="block text-sm font-bold text-green-800 mb-2">🤝 似ているところ・共通点</label>
+                    <textarea id="comp-same" rows="3" onchange="autoSave()" class="w-full p-2 border border-green-300 rounded outline-none bg-white" placeholder="例：大切にしている価値観が同じだった。"></textarea>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-lg border border-rose-200">
+                    <label class="block text-sm font-bold text-rose-800 mb-2">⚖️ 違うところ・新しい視点</label>
+                    <textarea id="comp-diff" rows="3" onchange="autoSave()" class="w-full p-2 border border-rose-300 rounded outline-none bg-white" placeholder="例：自分は〇〇を重視していたが、相手は△△を大事にしていた。"></textarea>
+                </div>
+            </div>
+
+            <button onclick="nextStep(6)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">
+                次へ（考えをまとめる）
+            </button>
+        </div>
+
+        <!-- Step 6: 考えのまとめと自己評価 -->
+        <div id="step-6" class="step-content fade-in bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <span class="text-indigo-600 font-bold text-sm tracking-wider uppercase">Quest 6</span>
+            <h2 class="text-xl font-bold mb-4 mt-1">自分の考えがどう変わったか・深まったかをまとめよう</h2>
+            
+            <div class="mb-8 space-y-4">
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-3 mb-4 text-sm text-indigo-900 font-medium">
+                    インタビューを通して、あなたの考えはどう変わりましたか？<br>
+                    「変わった部分」と「変わらなかったけど深まった部分」を分けて書きましょう。
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <label class="block text-sm font-bold text-indigo-700 mb-1">① 変わったところ（新しい気づき・考え方の変化）</label>
+                    <textarea id="final-change" rows="3" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例：最初は〇〇だと思っていたが、相手の△△という経験を聞いて、◇◇という視点もあると気づいた。"></textarea>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <label class="block text-sm font-bold text-indigo-700 mb-1">② 変わらなかったけど深まったところ（より確かになった理由）</label>
+                    <textarea id="final-deepen" rows="3" onchange="autoSave()" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例：考えは同じだが、相手の話を聞いて〇〇という新しい理由も見つかり、自分の考えがより確かになった。"></textarea>
+                </div>
+
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mt-6">
+                    <label class="block text-sm font-bold text-indigo-800 mb-1">③ それらをふまえた「インタビュー後のまとめ（最終的な考え）」 <span class="text-rose-500">*</span></label>
+                    <p class="text-xs font-bold text-rose-600 mb-2">⚠️ 理由や根拠を複数入れて、自分の考えを詳しくまとめましょう！</p>
+                    <textarea id="final-opinion" rows="5" onchange="autoSave()" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="私は〇〇だと考えます。なぜなら〜&#10;・１つ目の理由は〜（自分の経験）&#10;・２つ目の理由は〜（インタビューで聞いた事実）&#10;・３つ目の理由は〜（新しく気づいたこと）"></textarea>
+                </div>
+            </div>
+
+            <hr class="my-6 border-slate-200">
+
+            <h3 class="font-bold text-lg mb-4 text-indigo-700">振り返り（自己評価）</h3>
+            <div class="space-y-4 mb-6" id="rubric-container">
+                <!-- Javascriptで生成 -->
+            </div>
+
+            <button onclick="finish()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition text-lg mt-4 shadow-md">
+                学習完了！（結果を見る）
+            </button>
+        </div>
+
+        <!-- Step 7: 結果画面 -->
+        <div id="step-7" class="step-content fade-in">
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 mb-6" id="print-area">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">学習の記録</h2>
+                    <p class="text-slate-500 text-sm mt-2" id="result-info"></p>
+                </div>
+                
+                <div class="space-y-6 text-slate-700">
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-600 border-b border-indigo-200 pb-1 mb-2">1. インタビュー前の考え</h3>
+                        <p class="bg-slate-50 p-3 rounded border border-slate-100 whitespace-pre-wrap" id="res-before"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-600 border-b border-indigo-200 pb-1 mb-2">2. インタビュー後の考え（深まった考え）</h3>
+                        <div class="bg-slate-50 p-4 rounded border border-slate-100 space-y-3 whitespace-pre-wrap" id="res-after">
+                            <!-- JSで挿入 -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-600 border-b border-indigo-200 pb-1 mb-2">3. 自己評価</h3>
+                        <div id="res-rubric" class="bg-slate-50 p-3 rounded border border-slate-100"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 no-print">
+                <button onclick="window.print()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-lg transition text-center shadow-md">
+                    🖨️ 印刷 / PDF保存
+                </button>
+                <button onclick="copyDataForTeacher()" class="flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold py-3 px-4 rounded-lg transition shadow-md">
+                    📋 提出用データをコピー
+                </button>
+            </div>
+            <button onclick="resetData()" class="w-full mt-8 bg-white border-2 border-rose-200 hover:bg-rose-50 text-rose-600 font-bold py-3 px-4 rounded-lg transition no-print">
+                🗑️ データを消して最初から
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        const rubrics = [
+            { id: 'q1', title: '👂【聞く力】相手の話から「事実」と「感想・意見」を区別してメモできた。' },
+            { id: 'q2', title: '🤔【考える力】話し手の考えと自分の考えを比べ、新しい視点を見つけられた。' },
+            { id: 'q3', title: '✍️【まとめる力】インタビュー前後で自分の考えの変化や深まりをまとめられた。' },
+            { id: 'q4', title: '🗣️【敬語】相手に失礼のない言葉づかいでインタビューできた。' }
+        ];
+
+        const STORAGE_KEY = 'kikukangaeru_interview_data';
+        let state = {
+            step: 0,
+            inputs: {},
+            rubrics: {}
+        };
+
+        window.onload = () => {
+            initUI();
+            loadData();
+        };
+
+        function initUI() {
+            const rubEl = document.getElementById('rubric-container');
+            rubEl.innerHTML = '';
+            rubrics.forEach(r => {
+                rubEl.innerHTML += `
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <p class="text-sm font-bold text-slate-800 mb-2">${r.title}</p>
+                        <div class="flex gap-4 bg-white p-2 border border-slate-200 rounded inline-flex">
+                            <label class="flex items-center gap-1 cursor-pointer font-bold text-slate-600"><input type="radio" name="${r.id}" value="3" onchange="saveRubric('${r.id}', '3')" class="text-indigo-600 focus:ring-indigo-500 w-4 h-4"> できた！</label>
+                            <label class="flex items-center gap-1 cursor-pointer font-bold text-slate-400 ml-4"><input type="radio" name="${r.id}" value="1" onchange="saveRubric('${r.id}', '1')" class="text-slate-400 focus:ring-slate-400 w-4 h-4"> もう少し</label>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function autoSave() {
+            const inputIds = [
+                'interview-target', 'interview-topic',
+                'my-opinion-before', 'my-reason-before',
+                'my-questions',
+                'interview-memo', 'fact-memo', 'opinion-memo', 'impression-memo',
+                'comp-same', 'comp-diff',
+                'final-change', 'final-deepen', 'final-opinion'
+            ];
+            inputIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) state.inputs[id] = el.value;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function saveRubric(qId, val) {
+            state.rubrics[qId] = val;
+            autoSave();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                state = JSON.parse(saved);
+                
+                for (const [id, value] of Object.entries(state.inputs)) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = value;
+                }
+                
+                for (const [id, value] of Object.entries(state.rubrics)) {
+                    const radio = document.querySelector(`input[name="${id}"][value="${value}"]`);
+                    if(radio) radio.checked = true;
+                }
+
+                if (state.step > 0) {
+                    nextStep(state.step, true);
+                }
+            }
+        }
+
+        function resetData() {
+            if(confirm("保存されているデータをすべて消去して、最初からやり直しますか？")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        function showError(msg) {
+            const toast = document.getElementById('error-toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        function addQuestionText(text) {
+            const textarea = document.getElementById('my-questions');
+            textarea.value += (textarea.value ? '\n' : '') + '・' + text;
+            autoSave();
+        }
+
+        function nextStep(stepNum, skipValidation = false) {
+            if (!skipValidation) {
+                if (stepNum === 2) {
+                    const target = document.getElementById('interview-target').value.trim();
+                    const topic = document.getElementById('interview-topic').value.trim();
+                    if (!target || !topic) {
+                        showError('⚠️ インタビュー相手と話題を両方入力してください！');
+                        return;
+                    }
+                }
+                if (stepNum === 3) {
+                    const op = document.getElementById('my-opinion-before').value.trim();
+                    const re = document.getElementById('my-reason-before').value.trim();
+                    if (!op || !re) {
+                        showError('⚠️ インタビュー前のあなたの考えと理由を書いてください！');
+                        return;
+                    }
+                }
+                if (stepNum === 4) {
+                    const q = document.getElementById('my-questions').value.trim();
+                    if (!q) {
+                        showError('⚠️ 質問を1つ以上考えてください！');
+                        return;
+                    }
+                }
+                if (stepNum === 5) {
+                    const memo = document.getElementById('interview-memo').value.trim();
+                    if (!memo) {
+                        showError('⚠️ インタビューの記録を入力してください！');
+                        return;
+                    }
+                }
+            }
+
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${stepNum}`).classList.add('active');
+            window.scrollTo(0, 0);
+
+            if (!skipValidation) {
+                state.step = stepNum;
+                autoSave();
+            }
+
+            // インタビュー前の考えを表示（step5）
+            if (stepNum === 5) {
+                const beforeOp = state.inputs['my-opinion-before'] || '';
+                const beforeRe = state.inputs['my-reason-before'] || '';
+                document.getElementById('review-before-opinion').textContent = 
+                    `【考え】${beforeOp}\n【理由】${beforeRe}`;
+            }
+
+            const progress = (stepNum / 7) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            
+            let phaseText = '';
+            if(stepNum === 0) phaseText = 'Start';
+            else if(stepNum === 1) phaseText = 'Quest 1: 準備';
+            else if(stepNum === 2) phaseText = 'Quest 2: 自分の考え';
+            else if(stepNum === 3) phaseText = 'Quest 3: 質問準備';
+            else if(stepNum === 4) phaseText = 'Quest 4: 記録';
+            else if(stepNum === 5) phaseText = 'Quest 5: 比較';
+            else if(stepNum === 6) phaseText = 'Quest 6: まとめ';
+            else phaseText = '完了';
+            document.getElementById('progress-indicator').innerText = phaseText;
+        }
+
+        function finish(skipValidation = false) {
+            if (!skipValidation) {
+                const fnl = document.getElementById('final-opinion').value.trim();
+                if (!fnl) {
+                    showError('⚠️ インタビュー後の最終的な考えをまとめてください！');
+                    return;
+                }
+            }
+
+            const target = state.inputs['interview-target'] || '（未入力）';
+            const topic = state.inputs['interview-topic'] || '（未入力）';
+            const beforeOp = state.inputs['my-opinion-before'] || '（未入力）';
+            const beforeRe = state.inputs['my-reason-before'] || '（未入力）';
+            const chg = state.inputs['final-change'] || '（特になし）';
+            const dpn = state.inputs['final-deepen'] || '（特になし）';
+            const fnl = state.inputs['final-opinion'] || '（未入力）';
+
+            document.getElementById('result-info').textContent = 
+                `インタビュー相手：${target} ／ 話題：${topic}`;
+            document.getElementById('res-before').innerHTML = 
+                `<strong>考え：</strong>${beforeOp}<br><strong>理由：</strong>${beforeRe}`;
+            
+            document.getElementById('res-after').innerHTML = `
+                <div><span class="font-bold text-indigo-600">① 変わったところ：</span><br>${chg}</div>
+                <div><span class="font-bold text-indigo-600">② 深まったところ：</span><br>${dpn}</div>
+                <div class="pt-2 border-t border-slate-200"><span class="font-bold text-indigo-600">③ 最終的な考え：</span><br>${fnl}</div>
+            `;
+
+            let rubricText = '';
+            rubrics.forEach(r => {
+                const val = state.rubrics[r.id];
+                const mark = val === '3' ? '✅ できた' : val === '1' ? '△ もう少し' : '（未評価）';
+                rubricText += `<div class="text-sm mb-1"><strong>${r.title.split('】')[1]}</strong> → ${mark}</div>`;
+            });
+            document.getElementById('res-rubric').innerHTML = rubricText;
+
+            nextStep(7, skipValidation);
+        }
+
+        function copyDataForTeacher() {
+            const outputData = {
+                interview_target: state.inputs['interview-target'] || '',
+                interview_topic: state.inputs['interview-topic'] || '',
+                before_opinion: state.inputs['my-opinion-before'] || '',
+                before_reason: state.inputs['my-reason-before'] || '',
+                interview_memo: state.inputs['interview-memo'] || '',
+                fact_memo: state.inputs['fact-memo'] || '',
+                opinion_memo: state.inputs['opinion-memo'] || '',
+                final_change: state.inputs['final-change'] || '',
+                final_deepen: state.inputs['final-deepen'] || '',
+                final_opinion: state.inputs['final-opinion'] || '',
+                self_evaluation: state.rubrics
+            };
+            
+            const jsonStr = JSON.stringify(outputData, null, 2);
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                alert("📋 学習データをコピーしました！\n（先生の指定するフォームやノートアプリに貼り付けて提出してください）");
+            }).catch(err => {
+                alert("コピーに失敗しました。この画面をスクリーンショットして提出してください。");
+            });
+        }
+    </script>
+</body>
+</html>
 
