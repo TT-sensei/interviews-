@@ -129,7 +129,7 @@ const NAVI={
 };
 function renderNavi(n){
   const p=NAVI[n]||NAVI[0];
-  $("naviGuide").innerHTML='<img src="'+NAVI_BASE+p.id+'/expressions/'+p.img+'" alt="'+p.alt+'" onerror="this.style.display='none'"><div class="navi-copy">'+p.text+'</div>';
+  $("naviGuide").innerHTML='<img src="'+NAVI_BASE+p.id+'/expressions/'+p.img+'" alt="'+p.alt+'" onerror="this.remove()"><div class="navi-copy">'+p.text+'</div>';
 }
 function renderPeople(){$("people").innerHTML=DATA.map((p,i)=>'<button class="choice" onclick="choose('+i+')"><div class="title">'+p.icon+' '+p.title+'</div><div class="desc">'+p.desc+'</div></button>').join("")}
 function choose(i){state.person=DATA[i];save();$("person2").innerHTML=personHTML();$("suggestions").innerHTML=state.person.suggest.map(q=>'<button class="chip" onclick="useQ('+JSON.stringify(q)+')">'+q+'</button>').join("");go(2)}
