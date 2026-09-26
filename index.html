@@ -19,7 +19,13 @@ main{max-width:980px;margin:0 auto;padding:28px 20px 48px}
 h1{font-size:30px;line-height:1.25;margin:0 0 10px}h2{font-size:23px;margin:0 0 8px}h3{font-size:16px;margin:0 0 8px}
 .lead{color:var(--muted);line-height:1.7;margin:0 0 24px}.hint{background:#f7f9fb;border:1px solid var(--line);padding:14px 16px;border-radius:12px;color:#4f5a6c;font-size:14px;line-height:1.6}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.choice{width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:17px;min-height:82px;color:var(--ink);transition:.15s}.choice:hover,.choice:focus{border-color:#7da9e8;background:#f8fbff;outline:none}.choice .title{font-weight:750;font-size:17px}.choice .desc{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.45}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--accent2);font-size:23px;flex:0 0 auto}.person{display:flex;align-items:center;gap:12px;margin-bottom:20px}.person small{display:block;color:var(--muted);margin-top:3px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.navi-guide{max-width:980px;margin:0 auto 12px;padding:0 20px;display:flex;align-items:center;gap:10px;min-height:60px;color:#566276}
+.navi-guide img{width:58px;height:58px;object-fit:contain;object-position:center bottom;flex:0 0 auto;filter:drop-shadow(0 3px 6px rgba(23,32,51,.10))}
+.navi-guide .navi-copy{font-size:14px;line-height:1.5;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;box-shadow:0 2px 10px rgba(23,32,51,.04)}
+@media(max-width:700px){.navi-guide{padding:0 12px;margin-bottom:8px}.navi-guide img{width:50px;height:50px}.navi-guide .navi-copy{font-size:13px;padding:8px 10px}}
+@media print{.navi-guide{display:none!important}}
+.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--accent2);font-size:23px;flex:0 0 auto}.person{display:flex;align-items:center;gap:12px;margin-bottom:20px}.person small{display:block;color:var(--muted);margin-top:3px}
 textarea,input[type=text]{width:100%;border:1.5px solid #cbd3de;border-radius:12px;padding:13px 14px;outline:none;background:#fff;color:var(--ink)}textarea{min-height:118px;resize:vertical}textarea:focus,input:focus{border-color:#6f9edc;box-shadow:0 0 0 3px #e8f1fc}
 label{font-weight:700;font-size:14px;display:block;margin-bottom:7px}
 .btn{border:0;border-radius:12px;padding:13px 18px;font-weight:750;min-height:48px}.primary{background:var(--accent);color:#fff}.secondary{background:#eef2f6;color:#334055}.ghost{background:#fff;border:1px solid var(--line);color:#465267}.danger{color:#9a3e3e;border-color:#e5caca}
@@ -35,6 +41,7 @@ footer{text-align:center;color:#8993a2;font-size:12px;padding:0 20px 30px}
 </head>
 <body>
 <header><div class="header-inner"><div class="brand">インタビューラボ</div><div class="phase" id="phase">はじめに</div></div><div class="progress"><i id="bar"></i></div></header>
+<div class="navi-guide" id="naviGuide" aria-live="polite"></div>
 <main>
 <section id="s0" class="panel">
 <div class="eyebrow">INTERVIEW LAB</div>
@@ -46,7 +53,7 @@ footer{text-align:center;color:#8993a2;font-size:12px;padding:0 20px 30px}
 
 <section id="s1" class="panel hidden">
 <div class="eyebrow">STEP 1</div><h2>インタビューする相手を選ぼう</h2><p class="lead">テーマを選ぶと、そのテーマについて話してくれる人が登場します。</p>
-div id="people" class="grid"></div>
+<div id="people" class="grid"></div>
 <div class="actions"><button class="btn secondary" onclick="go(0)">もどる</button></div>
 </section>
 
@@ -111,6 +118,19 @@ const KEY="interview_lab_v2";
 const $=id=>document.getElementById(id);
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s)state={...state,...s}}catch(e){}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+const NAVI_BASE="https://tt-sensei.github.io/navi-character-/assets/web/characters/";
+const NAVI={
+0:{id:"sora",img:"02-happy.webp",text:"まずは、やってみよう。相手の話を聞くところからスタート！",alt:"案内するナビキャラ"},
+1:{id:"sora",img:"02-happy.webp",text:"話してみたいテーマを選ぼう。",alt:"案内するナビキャラ"},
+2:{id:"kai",img:"03-thinking.webp",text:"相手の答えを引き出せる質問を考えてみよう。",alt:"考えているナビキャラ"},
+3:{id:"riku",img:"03-thinking.webp",text:"答えの中の『もう少し聞きたい』を見つけよう。",alt:"考えているナビキャラ"},
+4:{id:"nami",img:"07-encouraging.webp",text:"ここまで聞いたことを、ゆっくり振り返ろう。",alt:"励ましているナビキャラ"},
+5:{id:"saku",img:"08-celebrating.webp",text:"インタビューの記録、完成！",alt:"喜んでいるナビキャラ"}
+};
+function renderNavi(n){
+  const p=NAVI[n]||NAVI[0];
+  $("naviGuide").innerHTML='<img src="'+NAVI_BASE+p.id+'/expressions/'+p.img+'" alt="'+p.alt+'" onerror="this.style.display='none'"><div class="navi-copy">'+p.text+'</div>';
+}
 function renderPeople(){$("people").innerHTML=DATA.map((p,i)=>'<button class="choice" onclick="choose('+i+')"><div class="title">'+p.icon+' '+p.title+'</div><div class="desc">'+p.desc+'</div></button>').join("")}
 function choose(i){state.person=DATA[i];save();$("person2").innerHTML=personHTML();$("suggestions").innerHTML=state.person.suggest.map(q=>'<button class="chip" onclick="useQ('+JSON.stringify(q)+')">'+q+'</button>').join("");go(2)}
 function personHTML(){const p=state.person;return '<div class="person"><div class="avatar">'+p.icon+'</div><div><strong>'+p.name+'</strong><small>'+p.role+'｜'+p.title+'</small></div></div>'}
@@ -122,7 +142,7 @@ function finish(){state.memo=$("memo").value.trim();save();const p=state.person;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function copyRecord(){const p=state.person;const text='【模擬インタビュー】\n相手：'+p.name+'（'+p.title+'）\n\n質問1：'+state.q1+'\n答え：'+state.a1+'\n\n質問2：'+state.q2+'\n答え：'+state.a2+'\n\n分かったこと：'+state.memo;navigator.clipboard?.writeText(text).then(()=>alert("記録をコピーしました。")).catch(()=>alert("コピーできませんでした。"))}
 function resetAll(){localStorage.removeItem(KEY);location.reload()}
-function go(n){state.step=n;save();document.querySelectorAll("main>section").forEach((s,i)=>s.classList.toggle("hidden",i!==n));const labels=["はじめに","相手を選ぶ","最初の質問","答えを聞く","もう一度聞く","記録"];$("phase").textContent=labels[n];$("bar").style.width=(n/5*100)+"%";window.scrollTo({top:0,behavior:"smooth"});if(n===1)renderPeople();if(n===2&&state.person){$("person2").innerHTML=personHTML();$("suggestions").innerHTML=state.person.suggest.map(q=>'<button class="chip" onclick="useQ('+JSON.stringify(q)+')">'+q+'</button>').join("")}}
+function go(n){state.step=n;save();renderNavi(n);document.querySelectorAll("main>section").forEach((s,i)=>s.classList.toggle("hidden",i!==n));const labels=["はじめに","相手を選ぶ","最初の質問","答えを聞く","もう一度聞く","記録"];$("phase").textContent=labels[n];$("bar").style.width=(n/5*100)+"%";window.scrollTo({top:0,behavior:"smooth"});if(n===1)renderPeople();if(n===2&&state.person){$("person2").innerHTML=personHTML();$("suggestions").innerHTML=state.person.suggest.map(q=>'<button class="chip" onclick="useQ('+JSON.stringify(q)+')">'+q+'</button>').join("")}}
 load();
 if(state.person){$("q1").value=state.q1;$("q2").value=state.q2;$("memo").value=state.memo}
 go(0);
